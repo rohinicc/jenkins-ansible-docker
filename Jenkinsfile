@@ -13,6 +13,12 @@ pipeline {
 
     stages {
 
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/rohinicc/jenkins-ansible-docker.git'
+            }
+        }
+
         stage('Docker Version Check') {
             steps {
                 sh 'docker --version'
@@ -38,11 +44,11 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-cred',
-                    usernameVariable: 'DOCKERHUB_USERNAME',
-                    passwordVariable: 'DOCKERHUB_PASSWORD'
+                    usernameVariable: 'DOCKER_USER',      // ← FIXED
+                    passwordVariable: 'DOCKER_PASS'       // ← FIXED
                 )]) {
                     sh """
-                    echo ${DOCKERHUB_PASSWORD} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+                    echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
                     docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${VERSION}
                     docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:latest
                     """
