@@ -27,16 +27,16 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${DOCKER_IMAGE} .'
+                sh 'docker build -t $DOCKER_IMAGE .'
             }
         }
 
         stage('Tag Docker Image') {
             steps {
-                sh """
-                docker tag ${DOCKER_IMAGE} ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${VERSION}
-                docker tag ${DOCKER_IMAGE} ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:latest
-                """
+                sh '''
+                docker tag $DOCKER_IMAGE $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:$VERSION
+                docker tag $DOCKER_IMAGE $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:latest
+                '''
             }
         }
 
@@ -44,14 +44,14 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-cred',
-                    usernameVariable: 'DOCKER_USER',      // ← FIXED
-                    passwordVariable: 'DOCKER_PASS'       // ← FIXED
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh """
-                    echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin
-                    docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${VERSION}
-                    docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:latest
-                    """
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    docker push $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:$VERSION
+                    docker push $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:latest
+                    '''
                 }
             }
         }
