@@ -21,15 +21,15 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'sudo docker build -t ${DOCKER_IMAGE} .'
+                sh 'docker build -t ${DOCKER_IMAGE} .'
             }
         }
 
         stage('Tag Docker Image') {
             steps {
                 sh """
-                sudo docker tag ${DOCKER_IMAGE} ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${VERSION}
-                sudo docker tag ${DOCKER_IMAGE} ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:latest
+                docker tag ${DOCKER_IMAGE} ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${VERSION}
+                docker tag ${DOCKER_IMAGE} ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:latest
                 """
             }
         }
@@ -42,9 +42,9 @@ pipeline {
                     passwordVariable: 'DOCKERHUB_PASSWORD'
                 )]) {
                     sh """
-                    echo ${DOCKERHUB_PASSWORD} | sudo docker login -u ${DOCKERHUB_USERNAME} --password-stdin
-                    sudo docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${VERSION}
-                    sudo docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:latest
+                    echo ${DOCKERHUB_PASSWORD} | docker login -u ${DOCKERHUB_USERNAME} --password-stdin
+                    docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:${VERSION}
+                    docker push ${DOCKERHUB_USERNAME}/${DOCKERHUB_REPO}:latest
                     """
                 }
             }
@@ -65,7 +65,7 @@ pipeline {
 
     post {
         success {
-            echo '✅ App deployed successfully on Worker Node 172.31.8.193:8085'
+            echo '✅ App deployed successfully on Worker Node 172.31.8.65:8085'
         }
         failure {
             echo '❌ Pipeline failed. Check logs above.'
