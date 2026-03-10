@@ -14,4 +14,4 @@ Static web application deployed using Jenkins, Ansible, and Docker.
 GitHub → Jenkins → Docker Build → DockerHub → Ansible → Worker Node
 
 ## Access Application
-http://172.31.8.65:8085
+http://publicIP4:8085
