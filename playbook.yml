@@ -1,0 +1,36 @@
+---
+- name: Deploy Music App on Worker Node
+  hosts: dev
+  become: yes
+  tasks:
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Pull latest image from DockerHub
+      docker_image:
+        name: rohinicc/music-dashboard-app:latest
+        source: pull
+        force_source: yes
+
+    - name: Remove old container if exists
+      docker_container:
+        name: app
+        state: absent
+
+    - name: Run new container on port 8085
+      docker_container:
+        name: app
+        image: rohinicc/music-dashboard-app:latest
+        state: started
+        ports:
+          - "8085:80"

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vibe — Trending Songs</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--surface:#13131c;--surface2:#1c1c2a;--border:rgba(255,255,255,0.06);--a1:#ff4d6d;--a2:#7c3aed;--a3:#06b6d4;--a4:#f59e0b;--text:#f0f0ff;--muted:#6b7280;--green:#10b981;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 600px 400px at 10% 20%,rgba(124,58,237,.12) 0%,transparent 70%),radial-gradient(ellipse 500px 300px at 80% 70%,rgba(255,77,109,.10) 0%,transparent 70%),radial-gradient(ellipse 400px 400px at 60% 10%,rgba(6,182,212,.07) 0%,transparent 70%);pointer-events:none;z-index:0;}
+.wrap{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 24px;}
+
+/* HEADER */
+header{padding:18px 0 14px;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);position:sticky;top:0;z-index:100;background:rgba(10,10,15,.88);}
+.hi{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--a1),var(--a2));border-radius:10px;display:grid;place-items:center;font-size:18px;}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.5px;}
+.logo-text span{color:var(--a1);}
+.tabs{display:flex;gap:4px;background:var(--surface);border-radius:12px;padding:4px;}
+.tab{padding:7px 16px;border-radius:9px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;color:var(--muted);transition:all .2s;}
+.tab.active{background:var(--a2);color:#fff;}
+.tab:hover:not(.active){color:var(--text);background:var(--surface2);}
+.hright{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.live{display:flex;align-items:center;gap:6px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:500;color:var(--green);}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.4);}}
+.csel{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;border-radius:10px;outline:none;cursor:pointer;}
+.rbtn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.rbtn:hover{border-color:var(--a3);color:var(--a3);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:24px 0 0;}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:transform .2s;animation:fadeUp .5s ease backwards;}
+.sc:hover{transform:translateY(-2px);}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sc:nth-child(1)::after{background:var(--green);}.sc:nth-child(2)::after{background:var(--a1);}
+.sc:nth-child(3)::after{background:var(--a3);}.sc:nth-child(4)::after{background:var(--a4);}
+.sc:nth-child(1){animation-delay:.05s;}.sc:nth-child(2){animation-delay:.10s;}
+.sc:nth-child(3){animation-delay:.15s;}.sc:nth-child(4){animation-delay:.20s;}
+.slbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+.sval{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;}
+.ssub{font-size:12px;color:var(--green);margin-top:4px;}
+
+/* MAIN */
+.mgrid{display:grid;grid-template-columns:1fr 320px;gap:20px;padding:24px 0 40px;}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;}
+.ph{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ptitle{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+.pill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;}
+.ppink{background:rgba(255,77,109,.15);color:var(--a1);border:1px solid rgba(255,77,109,.25);}
+.pcyan{background:rgba(6,182,212,.15);color:var(--a3);border:1px solid rgba(6,182,212,.25);}
+
+/* FILTERS */
+.frow{padding:12px 22px;display:flex;gap:8px;border-bottom:1px solid var(--border);overflow-x:auto;}
+.frow::-webkit-scrollbar{display:none;}
+.chip{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all .18s;}
+.chip.active{background:var(--a2);color:#fff;border-color:var(--a2);}
+.chip:hover:not(.active){border-color:rgba(255,255,255,.18);color:var(--text);}
+
+/* COLS */
+.ch{display:grid;grid-template-columns:30px 46px 1fr 90px 80px 50px;gap:12px;padding:9px 22px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;border-bottom:1px solid var(--border);}
+
+/* SONG ROW */
+.sr{display:grid;grid-template-columns:30px 46px 1fr 90px 80px 50px;align-items:center;gap:12px;padding:10px 22px;transition:background .15s;cursor:pointer;animation:fadeUp .4s ease backwards;border-bottom:1px solid rgba(255,255,255,.025);}
+.sr:last-child{border-bottom:none;}
+.sr:hover{background:rgba(255,255,255,.03);}
+.rn{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--muted);text-align:center;}
+.rn.gold{color:#ffd700;}.rn.silver{color:#c0c0c0;}.rn.bronze{color:#cd7f32;}
+.th{width:46px;height:46px;border-radius:9px;background:linear-gradient(135deg,var(--surface2),var(--bg));display:grid;place-items:center;font-size:20px;}
+.si .t{font-weight:600;font-size:13px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.si .a{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pi{display:flex;gap:4px;flex-wrap:wrap;}
+.pl{font-size:13px;}
+.py{font-size:13px;font-weight:500;text-align:right;}
+.tb{height:4px;border-radius:2px;background:var(--surface2);width:44px;overflow:hidden;}
+.tf{height:100%;border-radius:3px;}
+
+/* RIGHT */
+.rcol{display:flex;flex-direction:column;gap:18px;}
+.np{background:linear-gradient(135deg,#1a0533,#0d1a3a);border:1px solid rgba(124,58,237,.3);border-radius:20px;padding:22px;position:relative;overflow:hidden;animation:fadeUp .5s ease .25s backwards;}
+.np::before{content:'';position:absolute;top:-50px;right:-50px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.3) 0%,transparent 70%);}
+.npl{font-size:11px;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:14px;}
+.npc{width:100%;aspect-ratio:1;border-radius:14px;background:linear-gradient(135deg,#2d1b5e,#0f2545);display:grid;place-items:center;font-size:56px;margin-bottom:14px;box-shadow:0 18px 36px rgba(0,0,0,.5);animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.npt{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.npa{font-size:13px;color:#a78bfa;margin-bottom:16px;}
+.npm{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.nps{background:rgba(255,255,255,.05);border-radius:10px;padding:10px 12px;}
+.npsl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.npsv{font-size:15px;font-weight:700;}
+
+.plist{padding:4px 0 8px;}
+.pr{display:flex;align-items:center;gap:12px;padding:10px 22px;border-bottom:1px solid var(--border);}
+.pr:last-child{border-bottom:none;}
+.pe{font-size:18px;width:26px;text-align:center;}
+.pn{font-size:13px;font-weight:500;flex:1;}
+.pc{font-size:12px;color:var(--muted);margin-right:8px;}
+.pb{width:70px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.pf{height:100%;border-radius:3px;transition:width 1s ease;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px;}
+@media(max-width:900px){.mgrid{grid-template-columns:1fr;}.stats{grid-template-columns:repeat(2,1fr);}.ch,.sr{grid-template-columns:26px 40px 1fr 70px 50px;}.ch>*:nth-child(4),.sr>*:nth-child(4){display:none;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hi">
+    <div class="logo"><div class="logo-icon">🎵</div><div class="logo-text">Vibe<span>.</span></div></div>
+    <div class="tabs">
+      <button class="tab active" onclick="setTab(this,'trending')">Trending</button>
+      <button class="tab" onclick="setTab(this,'viral')">Viral</button>
+      <button class="tab" onclick="setTab(this,'rising')">Rising</button>
+      <button class="tab" onclick="setTab(this,'charts')">Charts</button>
+    </div>
+    <div class="hright">
+      <div class="live"><span class="ldot"></span>Live</div>
+      <select class="csel" id="csel" onchange="render()">
+        <option>🌍 Global</option><option>🇺🇸 United States</option>
+        <option>🇮🇳 India</option><option>🇬🇧 United Kingdom</option>
+        <option>🇰🇷 South Korea</option><option>🇧🇷 Brazil</option>
+      </select>
+      <button class="rbtn" onclick="shuffle()">↻ Refresh</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="stats">
+    <div class="sc"><div class="slbl">Total Trending</div><div class="sval">248</div><div class="ssub">↑ +12 from yesterday</div></div>
+    <div class="sc"><div class="slbl">Top Platform</div><div class="sval">TikTok</div><div class="ssub" style="color:var(--a1)">↓ Reels closing gap</div></div>
+    <div class="sc"><div class="slbl">Hottest Genre</div><div class="sval">Pop</div><div class="ssub">↑ 38% of chart</div></div>
+    <div class="sc"><div class="slbl">New Entries</div><div class="sval">34</div><div class="ssub">↑ +5 today</div></div>
+  </div>
+
+  <div class="mgrid">
+    <div>
+      <div class="panel">
+        <div class="ph">
+          <div class="ptitle">🔥 Trending Audio &amp; Video Songs</div>
+          <span class="pill ppink" id="cnt">20 songs</span>
+        </div>
+        <div class="frow">
+          <button class="chip active" onclick="filter(this,'all')">All Platforms</button>
+          <button class="chip" onclick="filter(this,'TikTok')">TikTok</button>
+          <button class="chip" onclick="filter(this,'Instagram')">Instagram</button>
+          <button class="chip" onclick="filter(this,'YouTube')">YouTube</button>
+          <button class="chip" onclick="filter(this,'Spotify')">Spotify</button>
+          <button class="chip" onclick="filter(this,'Twitter')">Twitter/X</button>
+        </div>
+        <div class="ch"><span>#</span><span></span><span>Song / Artist</span><span>Platforms</span><span style="text-align:right">Plays</span><span>Trend</span></div>
+        <div id="list"></div>
+      </div>
+    </div>
+
+    <div class="rcol">
+      <div class="np">
+        <div class="npl">▶ #1 Trending Now</div>
+        <div class="npc" id="npc">🌹</div>
+        <div class="npt" id="npt">APT.</div>
+        <div class="npa" id="npa">ROSÉ &amp; Bruno Mars</div>
+        <div class="npm">
+          <div class="nps"><div class="npsl">Plays</div><div class="npsv" id="nppy">482M</div></div>
+          <div class="nps"><div class="npsl">Change</div><div class="npsv" id="npch" style="color:var(--green)">+31%</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ph"><div class="ptitle">📊 Platform Breakdown</div><span class="pill pcyan">Live</span></div>
+        <div class="plist" id="plist"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SONGS = [
+  {t:"APT.",a:"ROSÉ & Bruno Mars",e:"🌹",p:["TikTok","Instagram","YouTube","Spotify"],pl:"482M",ch:"+31%",tr:98},
+  {t:"Espresso",a:"Sabrina Carpenter",e:"☕",p:["TikTok","Instagram","Spotify"],pl:"410M",ch:"+24%",tr:95},
+  {t:"Not Like Us",a:"Kendrick Lamar",e:"🎤",p:["YouTube","Twitter","TikTok"],pl:"398M",ch:"+44%",tr:92},
+  {t:"Die With A Smile",a:"Lady Gaga & Bruno Mars",e:"💫",p:["Spotify","YouTube","Instagram"],pl:"356M",ch:"+18%",tr:88},
+  {t:"MANTRA",a:"JENNIE",e:"🌙",p:["TikTok","Instagram","YouTube","Twitter"],pl:"340M",ch:"NEW",tr:90},
+  {t:"Birds Of A Feather",a:"Billie Eilish",e:"🕊️",p:["TikTok","Spotify","YouTube"],pl:"310M",ch:"+15%",tr:82},
+  {t:"Too Sweet",a:"Hozier",e:"🍯",p:["TikTok","Spotify"],pl:"299M",ch:"+9%",tr:75},
+  {t:"Good Luck, Babe!",a:"Chappell Roan",e:"🌈",p:["TikTok","Instagram","Spotify","YouTube"],pl:"287M",ch:"+22%",tr:88},
+  {t:"Beautiful Things",a:"Benson Boone",e:"✨",p:["TikTok","YouTube","Spotify"],pl:"271M",ch:"+3%",tr:65},
+  {t:"A Bar Song",a:"Shaboozey",e:"🍺",p:["TikTok","YouTube","Spotify"],pl:"258M",ch:"+35%",tr:91},
+  {t:"Harlequin",a:"Lady Gaga",e:"🃏",p:["TikTok","YouTube","Twitter"],pl:"245M",ch:"NEW",tr:87},
+  {t:"Stargazing",a:"Myles Smith",e:"⭐",p:["TikTok","Spotify"],pl:"236M",ch:"+28%",tr:86},
+  {t:"Lose Control",a:"Teddy Swims",e:"💙",p:["TikTok","Spotify","YouTube"],pl:"225M",ch:"+12%",tr:79},
+  {t:"TEXAS HOLD 'EM",a:"Beyoncé",e:"🤠",p:["TikTok","YouTube","Twitter"],pl:"218M",ch:"+7%",tr:72},
+  {t:"Sticky",a:"Sabrina Carpenter",e:"🍭",p:["TikTok","Instagram","Spotify"],pl:"205M",ch:"+11%",tr:77},
+  {t:"Perro Negro",a:"Bad Bunny & Feid",e:"🐶",p:["TikTok","YouTube","Instagram"],pl:"162M",ch:"+8%",tr:74},
+  {t:"Featherweight",a:"Ed Sheeran",e:"🪶",p:["Spotify","YouTube"],pl:"151M",ch:"NEW",tr:85},
+  {t:"Lunch",a:"Billie Eilish",e:"🌿",p:["TikTok","Instagram","Spotify"],pl:"148M",ch:"+19%",tr:83},
+  {t:"Lovin On Me",a:"Jack Harlow",e:"💛",p:["TikTok","Instagram","Spotify"],pl:"136M",ch:"+6%",tr:70},
+  {t:"Flowers",a:"Miley Cyrus",e:"🌻",p:["YouTube","Spotify","Instagram"],pl:"122M",ch:"-3%",tr:58},
+];
+const PI={TikTok:"📱",Instagram:"📸",YouTube:"▶️",Spotify:"🎵",Twitter:"🐦"};
+const PC={TikTok:"#ee1d52",Instagram:"#e1306c",YouTube:"#ff0000",Spotify:"#1ed760",Twitter:"#1da1f2"};
+const PLATS=[{n:"TikTok",c:"1.8B",p:82},{n:"Instagram",c:"1.2B",p:62},{n:"YouTube",c:"980M",p:52},{n:"Spotify",c:"710M",p:40},{n:"Twitter",c:"420M",p:25}];
+
+let cf='all', feat=SONGS[0];
+
+function getSongs(){return cf==='all'?SONGS:SONGS.filter(s=>s.p.includes(cf));}
+
+function render(){
+  const s=getSongs();
+  document.getElementById('cnt').textContent=s.length+' songs';
+  document.getElementById('list').innerHTML=s.map((x,i)=>{
+    const rc=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const cc=x.ch==='NEW'?'new':x.ch.startsWith('+')?'up':'down';
+    const fi=x.tr>85?'#ff4d6d':x.tr>70?'#7c3aed':'#06b6d4';
+    return `<div class="sr" style="animation-delay:${i*.03}s" onclick="pick(${SONGS.indexOf(x)})">
+      <div class="rn ${rc}">${i+1}</div>
+      <div class="th">${x.e}</div>
+      <div class="si"><div class="t">${x.t}</div><div class="a">${x.a}</div></div>
+      <div class="pi">${x.p.slice(0,4).map(p=>`<span class="pl" title="${p}">${PI[p]||'🔗'}</span>`).join('')}</div>
+      <div class="py">${x.pl}</div>
+      <div class="tb"><div class="tf" style="width:${x.tr}%;background:${fi}"></div></div>
+    </div>`;
+  }).join('');
+
+  // platforms
+  document.getElementById('plist').innerHTML=PLATS.map(p=>`
+    <div class="pr">
+      <span class="pe">${PI[p.n]||'🎵'}</span>
+      <span class="pn">${p.n}</span>
+      <span class="pc">${p.c}</span>
+      <div class="pb"><div class="pf" style="width:0%;background:${PC[p.n]}" data-w="${p.p}"></div></div>
+    </div>`).join('');
+  setTimeout(()=>document.querySelectorAll('.pf').forEach(e=>e.style.width=e.dataset.w+'%'),100);
+}
+
+function pick(i){
+  feat=SONGS[i];
+  document.getElementById('npc').textContent=feat.e;
+  document.getElementById('npt').textContent=feat.t;
+  document.getElementById('npa').textContent=feat.a;
+  document.getElementById('nppy').textContent=feat.pl;
+  const el=document.getElementById('npch');
+  el.textContent=feat.ch;
+  el.style.color=feat.ch==='NEW'?'var(--a4)':feat.ch.startsWith('+')?'var(--green)':'var(--a1)';
+}
+
+function filter(btn,plat){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active'); cf=plat; render();
+}
+
+function setTab(btn,tab){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); render();
+}
+
+function shuffle(){
+  // Slightly shuffle plays to simulate refresh
+  SONGS.forEach(s=>{ const n=parseInt(s.pl); if(!isNaN(n)) s.pl=Math.round(n*(0.97+Math.random()*.06))+'M'; });
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
