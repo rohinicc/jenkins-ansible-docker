@@ -1,36 +1,22 @@
 ---
 - name: Deploy Music App on Worker Node
   hosts: dev
+  user: ansible
   become: yes
+  connection: ssh
+  gather_facts: no
   tasks:
+     - name: Install Docker
+       command: apt install docker.io -y
 
-    - name: Install Docker
-      apt:
-        name: docker.io
-        state: present
-        update_cache: yes
+     - name: Start Docker service
+       command: systemctl start docker
 
-    - name: Start Docker service
-      service:
-        name: docker
-        state: started
-        enabled: yes
+     - name: Pull latest image from DockerHub
+       command: docker pull rohinicc/music-dashboard-app:latest
 
-    - name: Pull latest image from DockerHub
-      docker_image:
-        name: rohinicc/music-dashboard-app:latest
-        source: pull
-        force_source: yes
+     - name: Remove old container if exists
+       command: docker rm -f app
 
-    - name: Remove old container if exists
-      docker_container:
-        name: app
-        state: absent
-
-    - name: Run new container on port 8085
-      docker_container:
-        name: app
-        image: rohinicc/music-dashboard-app:latest
-        state: started
-        ports:
-          - "8085:80"
+     - name: Run new container on port 8085
+       command: docker run -d --name app -p 8085:80 rohinicc/music-dashboard-app:latest
