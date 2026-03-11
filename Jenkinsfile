@@ -71,10 +71,10 @@ pipeline {
 
     post {
         success {
-            echo '✅ App deployed successfully on Worker Node 172.31.8.65:8085'
+            echo 'App deployed successfully '
         }
         failure {
-            echo '❌ Pipeline failed. Check logs above.'
+            echo ' Pipeline failed.'
         }
     }
 }
